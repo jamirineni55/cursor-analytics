@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+bun.lockb
+
+# Development files
+.env.local
+.env.development
+*.log
+
+# Build artifacts (Vercel handles these)
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+.tmp/
+tmp/

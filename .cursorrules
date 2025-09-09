@@ -1,0 +1,138 @@
+# Cursor Analytics - React + TypeScript + Vite Project Rules
+
+You are an expert React TypeScript developer working on a modern web application. This project uses:
+- React 19.1.1 with TypeScript
+- Vite for build tooling
+- Tailwind CSS v4 for styling
+- shadcn/ui components with Radix UI primitives
+- React Hook Form with Zod validation
+- Zustand for state management
+- React Query for data fetching
+- React Router for navigation
+
+## Code Style & Best Practices
+
+### TypeScript
+- Use strict TypeScript with proper typing
+- Prefer type unions over enums
+- Use `interface` for object types that might be extended
+- Use `type` for unions, intersections, and computed types
+- Always use explicit return types for functions
+- Prefer `const assertions` over type annotations where applicable
+
+### React
+- Use functional components with hooks
+- Prefer arrow functions for components
+- Use React 19 features like `use()` hook when appropriate
+- Always destructure props in function signature
+- Use proper dependency arrays for hooks
+- Prefer composition over prop drilling
+
+### Component Structure
+- Place components in `src/components/` directory
+- UI components go in `src/components/ui/`
+- Group related components in subdirectories
+- Use PascalCase for component files and names
+- Export components as default exports
+- Include proper JSDoc comments for complex components
+
+### Styling
+- Use Tailwind CSS classes exclusively
+- Leverage shadcn/ui components for consistent design
+- Use `cn()` utility from `src/lib/utils.ts` for conditional classes
+- Follow mobile-first responsive design
+- Use Tailwind's design tokens (spacing, colors, etc.)
+
+### State Management
+- Use Zustand for global state
+- Keep state as close to where it's used as possible
+- Use React Query for server state
+- Use React Hook Form for form state
+- Validate forms with Zod schemas
+
+### File Organization
+- Use kebab-case for file names
+- Group imports: external libraries, internal modules, relative imports
+- Use absolute imports with `@/` prefix
+- Keep utility functions in `src/lib/`
+- Place types in appropriate component files or `src/types/`
+
+### Performance
+- Use React.memo() for expensive components
+- Implement proper loading states
+- Use React Query's caching effectively
+- Optimize bundle size with dynamic imports
+- Use proper key props for lists
+
+### Error Handling
+- Use error boundaries for component-level errors
+- Implement proper loading and error states
+- Use toast notifications (Sonner) for user feedback
+- Handle form validation errors gracefully
+
+## Specific Patterns
+
+### Components
+```typescript
+interface ComponentProps {
+  title: string;
+  isLoading?: boolean;
+}
+
+const Component = ({ title, isLoading = false }: ComponentProps): JSX.Element => {
+  return (
+    <div className="flex items-center justify-center">
+      {isLoading ? <div>Loading...</div> : <h1>{title}</h1>}
+    </div>
+  );
+};
+
+export default Component;
+```
+
+### Forms
+- Use React Hook Form with Zod validation
+- Leverage shadcn/ui form components
+- Provide proper accessibility attributes
+- Handle loading and error states
+
+### API Integration
+- Use React Query for data fetching
+- Create custom hooks for API operations
+- Implement proper error handling and retries
+- Use optimistic updates where appropriate
+
+### Routing
+- Use React Router v7 features
+- Implement proper route guards
+- Use lazy loading for route components
+- Handle 404 and error pages
+
+## Development Guidelines
+
+- Write self-documenting code with clear variable names
+- Use proper semantic HTML elements
+- Ensure accessibility compliance (WCAG 2.1 AA)
+- Test components with proper test IDs
+- Follow progressive enhancement principles
+- Optimize for Core Web Vitals
+
+## Dependencies
+- Prefer the existing dependencies in package.json
+- Use shadcn/ui components before creating custom ones
+- Leverage Radix UI primitives for complex interactions
+- Use Lucide React for icons
+- Utilize date-fns for date manipulation
+
+## Build & Deployment
+- Use Vite's build optimizations
+- Ensure TypeScript compilation passes
+- Run ESLint checks before commits
+- Optimize for Vercel deployment (configured in vercel.json)
+
+When writing code, prioritize:
+1. Type safety and proper TypeScript usage
+2. Component reusability and composition
+3. Performance and accessibility
+4. Clean, readable, and maintainable code
+5. Consistent styling with Tailwind and shadcn/ui
