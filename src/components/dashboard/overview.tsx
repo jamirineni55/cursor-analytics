@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+// import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -9,8 +9,8 @@ import {
   Bot,
   Zap,
   RefreshCw,
-  Code,
-  BarChart3,
+  // Code,
+  // BarChart3,
   Download,
   Calendar
 } from 'lucide-react';
@@ -30,7 +30,7 @@ import {
 } from 'recharts';
 import { useDashboardStore } from '@/stores/dashboard-store';
 import { useGroupsStore } from '@/stores/groups-store';
-import { cursorAPI, dateUtils } from '@/services/cursor-api';
+import { cursorAPI } from '@/services/cursor-api';
 import { toast } from 'sonner';
 
 interface ChartDataPoint {
@@ -40,8 +40,8 @@ interface ChartDataPoint {
   chatRequests: number;
   agentRequests: number;
   totalLines: number;
-  aiLines: number;
-  aiPercentage: number;
+  acceptedLinesAdded: number;
+  acceptedLinesDeleted: number;
   activeUsers: number;
 }
 
@@ -56,25 +56,23 @@ const COLORS = {
   chat: '#10B981', 
   agent: '#F59E0B',
   totalLines: '#8B5CF6',
-  aiLines: '#EF4444',
+  acceptedAdded: '#22C55E',
+  acceptedDeleted: '#EF4444',
 };
 
-export const Overview = (): JSX.Element => {
+export const Overview = (): React.JSX.Element => {
   const {
     teamMembers,
     dailyUsageData,
-    usageEvents,
     loading,
-    errors,
     dateRange,
     setTeamMembers,
     setDailyUsageData,
-    setUsageEvents,
     setLoading,
     setError,
   } = useDashboardStore();
   
-  const { selectedGroupId, getGroupMembers, groups, addGroup } = useGroupsStore();
+  const { selectedGroupId, getGroupMembers } = useGroupsStore();
   const [activeTab, setActiveTab] = useState('overview');
 
   const loadData = async (): Promise<void> => {
@@ -94,16 +92,7 @@ export const Overview = (): JSX.Element => {
       setDailyUsageData(usageResponse.data);
       setLoading('dailyUsage', false);
 
-      // Load usage events
-      setLoading('usageEvents', true);
-      setError('usageEvents', null);
-      const eventsResponse = await cursorAPI.getUsageEvents({ 
-        ...dateRange, 
-        page: 1, 
-        pageSize: 100 
-      });
-      setUsageEvents(eventsResponse.data);
-      setLoading('usageEvents', false);
+      // Note: usage events view removed for now
 
 
 
@@ -150,12 +139,13 @@ export const Overview = (): JSX.Element => {
   const activeMembers = filteredDailyData.filter(d => d.isActive).length;
   
   const totalLinesAdded = filteredDailyData.reduce((sum, d) => sum + d.totalLinesAdded, 0);
-  const totalAILinesAdded = filteredDailyData.reduce((sum, d) => sum + d.acceptedLinesAdded, 0);
-  const aiCodePercentage = totalLinesAdded > 0 ? (totalAILinesAdded / totalLinesAdded) * 100 : 0;
+  const totalAcceptedLinesAdded = filteredDailyData.reduce((sum, d) => sum + d.acceptedLinesAdded, 0);
+  const totalAcceptedLinesDeleted = filteredDailyData.reduce((sum, d) => sum + (d.acceptedLinesDeleted ?? 0), 0);
 
   const totalRequests = filteredDailyData.reduce((sum, d) => 
     sum + d.composerRequests + d.chatRequests + d.agentRequests, 0
   );
+  const totalAcceptedEditedLines = totalAcceptedLinesAdded + totalAcceptedLinesDeleted;
 
   // Prepare chart data
   const prepareChartData = (): ChartDataPoint[] => {
@@ -172,8 +162,8 @@ export const Overview = (): JSX.Element => {
           chatRequests: 0,
           agentRequests: 0,
           totalLines: 0,
-          aiLines: 0,
-          aiPercentage: 0,
+          acceptedLinesAdded: 0,
+          acceptedLinesDeleted: 0,
           activeUsers: 0,
         });
       }
@@ -184,18 +174,14 @@ export const Overview = (): JSX.Element => {
       existing.chatRequests += d.chatRequests;
       existing.agentRequests += d.agentRequests;
       existing.totalLines += d.totalLinesAdded;
-      existing.aiLines += d.acceptedLinesAdded;
+      existing.acceptedLinesAdded += d.acceptedLinesAdded;
+      existing.acceptedLinesDeleted += d.acceptedLinesDeleted ?? 0;
       existing.activeUsers += d.isActive ? 1 : 0;
     });
     
     const chartData = Array.from(dataMap.values()).sort((a, b) => 
       new Date(a.date).getTime() - new Date(b.date).getTime()
     );
-    
-    // Calculate AI percentage for each day
-    chartData.forEach(d => {
-      d.aiPercentage = d.totalLines > 0 ? (d.aiLines / d.totalLines) * 100 : 0;
-    });
     
     return chartData;
   };
@@ -227,7 +213,7 @@ export const Overview = (): JSX.Element => {
   const exportData = async (): Promise<void> => {
     try {
       const csvContent = [
-        ['Date', 'Total Requests', 'Composer', 'Chat', 'Agent', 'Total Lines', 'AI Lines', 'AI %', 'Active Users'],
+        ['Date', 'Total Requests', 'Composer', 'Chat', 'Agent', 'Total Lines', 'Accepted Lines Added', 'Accepted Lines Deleted', 'Active Users'],
         ...chartData.map(d => [
           d.date,
           d.totalRequests,
@@ -235,8 +221,8 @@ export const Overview = (): JSX.Element => {
           d.chatRequests,
           d.agentRequests,
           d.totalLines,
-          d.aiLines,
-          d.aiPercentage.toFixed(1),
+          d.acceptedLinesAdded,
+          d.acceptedLinesDeleted,
           d.activeUsers
         ])
       ].map(row => row.join(',')).join('\n');
@@ -283,31 +269,41 @@ export const Overview = (): JSX.Element => {
 
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {/* Team Members */}
+        {/* Accepted Edited Lines (Added + Deleted) */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Team Members</CardTitle>
+            <CardTitle className="text-sm font-medium">Accepted Edited Lines</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalMembers}</div>
+            <div className="text-2xl font-bold">{totalAcceptedEditedLines.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              {activeMembers} active in period
+              {totalAcceptedLinesAdded.toLocaleString()} added + {totalAcceptedLinesDeleted.toLocaleString()} deleted
             </p>
           </CardContent>
         </Card>
 
-        {/* Code Generation */}
+        {/* Accepted Lines Added */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">AI Code %</CardTitle>
+            <CardTitle className="text-sm font-medium">Accepted Lines Added</CardTitle>
             <Bot className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{aiCodePercentage.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground">
-              {totalAILinesAdded.toLocaleString()} AI lines of {totalLinesAdded.toLocaleString()} total
-            </p>
+            <div className="text-2xl font-bold">{totalAcceptedLinesAdded.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">Total lines accepted from AI suggestions</p>
+          </CardContent>
+        </Card>
+
+        {/* Accepted Lines Deleted */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Accepted Lines Deleted</CardTitle>
+            <Bot className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalAcceptedLinesDeleted.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">Total deletions accepted from AI suggestions</p>
           </CardContent>
         </Card>
 
@@ -473,7 +469,7 @@ export const Overview = (): JSX.Element => {
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        label={(entry) => `${entry.name}`}
                       >
                         {requestTypeData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />

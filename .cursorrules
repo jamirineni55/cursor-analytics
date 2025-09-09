@@ -124,6 +124,23 @@ export default Component;
 - Use Lucide React for icons
 - Utilize date-fns for date manipulation
 
+## Package Management
+- Use Bun exclusively for all package management and scripts
+  - Do not use npm, yarn, or pnpm
+- Commands
+  - Install dependencies: `bun install`
+  - Add dependency: `bun add <package>`
+  - Add dev dependency: `bun add -d <package>`
+  - Remove dependency: `bun remove <package>`
+  - Run dev server: `bun run dev`
+  - Build: `bun run build`
+  - Lint: `bun run lint`
+- Version control
+  - Keep `bun.lock` committed
+  - Do not add `package-lock.json`, `yarn.lock`, or `pnpm-lock.yaml`
+- CI/Builds
+  - Ensure Bun is installed and used in all pipelines
+
 ## Build & Deployment
 - Use Vite's build optimizations
 - Ensure TypeScript compilation passes
