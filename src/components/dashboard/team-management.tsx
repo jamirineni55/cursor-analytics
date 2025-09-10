@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type JSX } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,11 +28,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { 
   Users, 
-  Mail, 
   Crown, 
   Shield, 
   User,
@@ -40,14 +38,11 @@ import {
   Edit,
   Trash2,
   Search,
-  Filter,
   BarChart3,
   Calendar,
   RefreshCw,
   MoreHorizontal,
-  UserPlus,
-  Check
-} from 'lucide-react';
+  UserPlus} from 'lucide-react';
 import { useDashboardStore } from '@/stores/dashboard-store';
 import { useGroupsStore } from '@/stores/groups-store';
 import { cursorAPI } from '@/services/cursor-api';

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import { Check, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {

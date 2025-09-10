@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { useAuthStore } from '@/stores/auth-store';
 import { APIKeySetup } from '@/components/auth/api-key-setup';

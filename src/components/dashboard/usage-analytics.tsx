@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type JSX } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -18,8 +17,6 @@ import {
   Line,
   AreaChart,
   Area,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -31,9 +28,8 @@ import {
 } from 'recharts';
 import { useDashboardStore } from '@/stores/dashboard-store';
 import { useGroupsStore } from '@/stores/groups-store';
-import { cursorAPI, dateUtils } from '@/services/cursor-api';
+import { cursorAPI } from '@/services/cursor-api';
 import { toast } from 'sonner';
-import type { DailyUsageData } from '@/types/cursor-api';
 
 interface ChartDataPoint {
   date: string;
@@ -64,7 +60,6 @@ const COLORS = {
 export const UsageAnalytics = (): JSX.Element => {
   const {
     dailyUsageData,
-    usageEvents,
     loading,
     errors,
     dateRange,
@@ -94,7 +89,7 @@ export const UsageAnalytics = (): JSX.Element => {
         page: 1, 
         pageSize: 100 
       });
-      setUsageEvents(eventsResponse.data);
+      setUsageEvents(eventsResponse.usageEvents);
       setLoading('usageEvents', false);
 
     } catch (error) {
@@ -122,7 +117,7 @@ export const UsageAnalytics = (): JSX.Element => {
     
     const groupMembers = getGroupMembers(selectedGroupId, []);
     const groupEmails = new Set(groupMembers.map(m => m.email));
-    return groupEmails.has(d.userEmail);
+    return groupEmails.has(d.email ?? '');
   });
 
   // Prepare chart data
@@ -188,7 +183,7 @@ export const UsageAnalytics = (): JSX.Element => {
   const totalLines = filteredDailyData.reduce((sum, d) => sum + d.totalLinesAdded, 0);
   const totalAILines = filteredDailyData.reduce((sum, d) => sum + d.acceptedLinesAdded, 0);
   const aiCodePercentage = totalLines > 0 ? (totalAILines / totalLines) * 100 : 0;
-  const activeUserCount = new Set(filteredDailyData.filter(d => d.isActive).map(d => d.userEmail)).size;
+  const activeUserCount = new Set(filteredDailyData.filter(d => d.isActive).map(d => d.email)).size;
 
   const isLoading = loading.dailyUsage || loading.usageEvents;
   const hasError = errors.dailyUsage || errors.usageEvents;
@@ -517,7 +512,7 @@ export const UsageAnalytics = (): JSX.Element => {
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        label={({ name }) => `${name}`}
                       >
                         {requestTypeData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />

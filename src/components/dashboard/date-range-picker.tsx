@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import { CalendarDays, ChevronDown } from 'lucide-react';
 import { type DateRange } from 'react-day-picker';
 import { Button } from '@/components/ui/button';

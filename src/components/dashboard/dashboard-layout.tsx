@@ -1,14 +1,11 @@
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import { 
   BarChart3, 
   Users, 
   Settings, 
   LogOut, 
   Menu, 
-  X,
-  TrendingUp,
-  Code
-} from 'lucide-react';
+  X} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { DateRangePicker } from '@/components/dashboard/date-range-picker';
