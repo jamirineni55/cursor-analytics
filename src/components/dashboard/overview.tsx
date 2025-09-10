@@ -135,8 +135,6 @@ export const Overview = (): React.JSX.Element => {
   });
 
   // Calculate metrics
-  const totalMembers = filteredMembers.length;
-  const activeMembers = filteredDailyData.filter(d => d.isActive).length;
   
   const totalLinesAdded = filteredDailyData.reduce((sum, d) => sum + d.totalLinesAdded, 0);
   const totalAcceptedLinesAdded = filteredDailyData.reduce((sum, d) => sum + d.acceptedLinesAdded, 0);

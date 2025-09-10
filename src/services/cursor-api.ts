@@ -11,8 +11,8 @@ const CURSOR_API_BASE = 'https://api.cursor.com';
 export class CursorAPIError extends Error {
   constructor(
     message: string,
-    public status?: number,
-    public response?: Response
+    _status?: number,
+    _response?: Response
   ) {
     super(message);
     this.name = 'CursorAPIError';
